@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<style>
+        .wrap {
+            position: relative;
+            width: 320px;
+            height: 480px;
+            margin: 20px auto;
+            background: url('img/game_bg.jpg') no-repeat;
+        }
+
+        .box > img {
+            position: absolute;
+            left: 63px;
+            top: 66px;
+        }
+
+        .score {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            color: white;
+            left: 60px;
+            top: 15px;
+        }
+
+        .text {
+            font-size: 40px;
+            color: yellow;
+            text-shadow: 0 0 4px yellow;
+            position: absolute;
+            left: 75px;
+        }
+
+        .start {
+            top: 200px;
+            /*display: none;*/
+        }
+
+        .once {
+            top: 260px;
+            display: none;
+        }
+
+        .gameover {
+            top: 225px;
+            display: none;
+            z-index: 999;
+        }
+
+        .wolf img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="box">
+        <img src="img/progress.png" alt="" width='180px' height="16px">
+    </div>
+    <div class="score"></div>
+    <div class="text start">开始游戏</div>
+    <div class="text gameover">游戏结束</div>
+    <div class="text once">再来一轮</div>
+
+    <div class="wolf"></div>
+</div>
+<script>
+	var box = document.querySelector('.box');
+    var boxImg = document.querySelector('.box img');
+    var score = document.querySelector('.score');
+    var start = document.querySelector('.start');
+    var detail = document.querySelector('.detail');
+    var once = document.querySelector('.once');
+    var gameover = document.querySelector('.gameover');
+    var wolf = document.querySelector('.wolf');
+    var distArr = [[111, 100], [139, 189], [157, 20], [188, 106], [209, 200], [217, 20], [290, 33], [270, 122], [292, 210]];
+
+    var grade = 0;
+    score.innerHTML = grade;
+    var wolfDivArr = [];
+    var timer = 0;
+
+    function createWolf(){
+    	for(var i = 0;i < 9; i++){
+    		wolfDiv = document.createElement('div');
+    		wolf.style.width = 101 +'px';
+    		wolf.style.height = 108 + 'px';
+    		wolfDiv.style.display = 'none';
+    		wolfDiv.style.position = 'absolute';
+    		wolfDiv.style.top = distArr[i][0] + 'px';
+    		wolfDiv.style.left = distArr[i][1] + 'px';
+    		wolfDiv.i = 0;
+    		wolfDiv.j = 1;
+    		wolfDiv.isClick = false;
+    		wolfDiv.isCZ = false;
+    		wolfDiv.onclick = function(){
+    			if(!this.isClick){
+    				this.i = 6;
+    				this.j = 1;
+    				this.isClick = true;
+    			}
+    		}
+    		wolf.appendChild(wolfDiv);
+    		wolfDivArr.push(wolfDiv);
+    	}
+    }
+
+    function wolfOut(){
+    	var str = randomNum(0,100) > 80 ? 'x' : 'h';
+    	var index = randomNum(0,9);
+    	wolfDivArr[index].style.display = 'block';
+    	if(!wolfDivArr[index].isCZ){
+    		wolfDivArr[index].isCZ = true;
+    		var image = new Image();
+    		wolfDivArr[index].appendChild(image);
+    		var timer = setInterval(function(){
+    			image.src = 'img/'+ str + wolfDivArr[index].i + '.png';
+    			wolfDivArr[index].i += wolfDivArr[index].j;
+    			if(wolfDivArr[index].i == 5){
+    				wolfDivArr[index].j = 1;
+    			}
+    			if(wolfDivArr[index].i >= 9){
+    				if(str == 'h'){
+    					grade += 10;
+    				}else{
+    					grade -= 10;
+    				}
+    				score.innerText = grade;
+    				clearInterval(timer);
+    				wolfDivArr[index].i = 0;
+    				wolfDivArr[index].j =1;
+    				wolfDivArr[index].isClick = false;
+    				wolfDivArr[index].isCZ = false;
+    				wolfDivArr[index].removeChild(image);
+    				wolfDivArr[index].style.display = 'none';
+    			}
+    			if(wolfDivArr[index].i < 0){
+    				wolfDivArr[index].i = 0;
+    				wolfDivArr[index].j = 1;
+    				wolfDivArr[index].isClick = false;
+    				wolfDivArr[index].isCZ =false;
+    				wolfDivArr[index].removeChild(image);
+    				wolfDivArr[index].style.display = 'none';
+    				clearInterval(timer);
+    			}
+    			
+    		},100);
+    	}
+
+    }
+
+    function randomNum(num1,num2){
+    	return parseInt(Math.random() * (num2 - num1 + 1) + num1);
+    }
+
+    var wolfTimer = setInterval(function(){
+    		wolfOut();
+    	},1000);
+    function time(){
+    	var timer = setInterval(function(){
+    		var score = boxImg.offsetWidth;
+    		if(score > 0){
+    			score--;
+    			boxImg.style.width = score + 'px';
+    		}else{
+    			clearInterval(timer);
+    			gameover.style.display = 'block';
+    			clearInterval(wolfTimer);
+    		}
+    	},100);
+    }
+    start.onclick = function(){
+    	start.style.display = 'none';
+    	time();
+    	
+    	createWolf();
+    }
+
+</script>
+</body>
+</html>
